@@ -1,0 +1,752 @@
+Flag: `CSCG{n3w_ag3_v1rtu4liz4t1on_l0l?}`
+
+0x200 bytes header
+0x10000 bytes code
+
+Break at  0x0000000008000bfe
+
+```python
+
+OP_BOOL             = 0x959EE2
+OP_SHIFT            = 0xA19EE2
+OP_DUP              = 0xBC80E2
+OP_OR               = 0x859CE2
+OP_WRITE            = 0x8F9CE2
+OP_EXIT             = 0x80929FF0
+OP_XOR              = 0x80949FF0
+OP_JUMP_EQ          = 0x94A49FF0
+OP_READ             = 0x96939FF0
+OP_PUSH_POW_I_INT   = 0xA08C9FF0
+OP_PUSH_POW         = 0xAA929FF0
+OP_PUSH_POW_I_BYTE  = 0xBEA69FF0
+
+ip = 0
+sp = 0
+
+while True:
+    opcode = load_opcode()
+    ip += opcode_length(code[ip])
+
+    if op == OP_EXIT:
+        exit(-1)
+    elif opcode == OP_BOOL:
+        push(pop() & 1)
+    elif opcode == OP_SHIFT:
+        ip += 1
+        arg = load_arg_pow()
+        push(pop() >> arg)
+    elif opcode  == OP_DUP:
+        ip += 1
+        x = pop()
+        push(x)
+        push(x)
+    elif opcode == OP_OR:
+        push(pop() | pop())
+    elif opcode == OP_WRITE:
+        ip += 1
+        length = pop()
+        offset = pop()
+        print(header[offset:offset+length])
+    elif opcode == OP_READ:
+        length = pop()
+        offset = pop()
+        header[offset:offset+length] = input()
+    elif opcode == OP_PUSH_POW:
+        arg = load_arg_pow()
+        push(arg)
+    elif opcode == OP_PUSH_POW_I_BYTE:
+        arg = load_arg_pow()
+        push(byte(header[arg]))
+    elif opcode == OP_PUSH_POW_I_INT:
+        arg = load_arg_pow()
+        push(header[arg])
+    elif opcode == OP_XOR:
+        push(pop() ^ pop())
+    elif opcode == OP_JUMP_EQ:
+        arg = load_arg_pow()
+        if pop() == pop():
+            ip += arg
+    else:
+        print("Unknown opcode")
+
+
+def load_arg_pow():
+    result = 0
+
+    for _ in range(3):
+        a = load_arg()
+        b = load_arg()
+        result += b ** a
+
+    return result
+
+
+def load_arg():
+    val = load_opcode() - 48
+    ptr = opcode_len(code[ip + 1]) + 1
+    ip += opcode_len(code[ip + ptr]) + ptr
+    return val
+
+
+def load_opcode():
+    op = 0
+
+    for i in range(opcode_len(code[ip])):
+        op |= (code[ip+i] << i * 8) & (255 << i * 8)
+    
+    return op
+
+
+def opcode_len(op):
+    if 0 <= op < 128:
+        return 1
+
+    for i in range(2, 5):
+        if op & 128 >> i == 0:
+            return i
+    
+    return -1
+```
+
+# Program
+
+```
+   0  PUSH 0x90
+  2e  PUSH 0x17
+  5c  WRITE <len> <offset>
+  62  PUSH 0xa7
+  90  PUSH 0x14
+  be  WRITE <len> <offset>
+  c4  PUSH 0x0
+  f2  PUSH 0x1b
+ 120  READ <len> <offset>
+ 124  PUSH 0x0
+ 152  PUSH 0xf2
+ 180  PUSH_BYTE_AT 0x0 ( 0 )
+ 1ae  XOR
+ 1b2  PUSH 0x9c
+ 1e0  XOR
+ 1e4  OR
+ 1e7  PUSH 0xea
+ 215  PUSH_BYTE_AT 0x1 ( 0 )
+ 243  XOR
+ 247  PUSH 0xd9
+ 275  XOR
+ 279  OR
+ 27c  PUSH 0x82
+ 2aa  PUSH_BYTE_AT 0x2 ( 0 )
+ 2d8  XOR
+ 2dc  PUSH 0xf5
+ 30a  XOR
+ 30e  OR
+ 311  PUSH 0x36
+ 33f  PUSH_BYTE_AT 0x3 ( 0 )
+ 36d  XOR
+ 371  PUSH 0x69
+ 39f  XOR
+ 3a3  OR
+ 3a6  PUSH 0x8e
+ 3d4  PUSH_BYTE_AT 0x4 ( 0 )
+ 402  XOR
+ 406  PUSH 0xef
+ 434  XOR
+ 438  OR
+ 43b  PUSH 0x12
+ 469  PUSH_BYTE_AT 0x5 ( 0 )
+ 497  XOR
+ 49b  PUSH 0x75
+ 4c9  XOR
+ 4cd  OR
+ 4d0  PUSH 0x18
+ 4fe  PUSH_BYTE_AT 0x6 ( 0 )
+ 52c  XOR
+ 530  PUSH 0x2b
+ 55e  XOR
+ 562  OR
+ 565  PUSH 0x73
+ 593  PUSH_BYTE_AT 0x7 ( 0 )
+ 5c1  XOR
+ 5c5  PUSH 0x2c
+ 5f3  XOR
+ 5f7  OR
+ 5fa  PUSH 0x7b
+ 628  PUSH_BYTE_AT 0x8 ( 0 )
+ 656  XOR
+ 65a  PUSH 0xd
+ 688  XOR
+ 68c  OR
+ 68f  PUSH 0x11
+ 6bd  PUSH_BYTE_AT 0x9 ( 0 )
+ 6eb  XOR
+ 6ef  PUSH 0x20
+ 71d  XOR
+ 721  OR
+ 724  PUSH 0x5b
+ 752  PUSH_BYTE_AT 0xa ( 0 )
+ 780  XOR
+ 784  PUSH 0x29
+ 7b2  XOR
+ 7b6  OR
+ 7b9  PUSH 0x69
+ 7e7  PUSH_BYTE_AT 0xb ( 0 )
+ 815  XOR
+ 819  PUSH 0x1d
+ 847  XOR
+ 84b  OR
+ 84e  PUSH 0x38
+ 87c  PUSH_BYTE_AT 0xc ( 0 )
+ 8aa  XOR
+ 8ae  PUSH 0x4d
+ 8dc  XOR
+ 8e0  OR
+ 8e3  PUSH 0x8a
+ 911  PUSH_BYTE_AT 0xd ( 0 )
+ 93f  XOR
+ 943  PUSH 0xbe
+ 971  XOR
+ 975  OR
+ 978  PUSH 0xb0
+ 9a6  PUSH_BYTE_AT 0xe ( 0 )
+ 9d4  XOR
+ 9d8  PUSH 0xdc
+ a06  XOR
+ a0a  OR
+ a0d  PUSH 0x8b
+ a3b  PUSH_BYTE_AT 0xf ( 0 )
+ a69  XOR
+ a6d  PUSH 0xe2
+ a9b  XOR
+ a9f  OR
+ aa2  PUSH 0x8e
+ ad0  PUSH_BYTE_AT 0x10 ( 0 )
+ afe  XOR
+ b02  PUSH 0xf4
+ b30  XOR
+ b34  OR
+ b37  PUSH 0x83
+ b65  PUSH_BYTE_AT 0x11 ( 0 )
+ b93  XOR
+ b97  PUSH 0xb7
+ bc5  XOR
+ bc9  OR
+ bcc  PUSH 0xf6
+ bfa  PUSH_BYTE_AT 0x12 ( 0 )
+ c28  XOR
+ c2c  PUSH 0x82
+ c5a  XOR
+ c5e  OR
+ c61  PUSH 0xc4
+ c8f  PUSH_BYTE_AT 0x13 ( 0 )
+ cbd  XOR
+ cc1  PUSH 0xf5
+ cef  XOR
+ cf3  OR
+ cf6  PUSH 0x39
+ d24  PUSH_BYTE_AT 0x14 ( 0 )
+ d52  XOR
+ d56  PUSH 0x56
+ d84  XOR
+ d88  OR
+ d8b  PUSH 0xf5
+ db9  PUSH_BYTE_AT 0x15 ( 0 )
+ de7  XOR
+ deb  PUSH 0x9b
+ e19  XOR
+ e1d  OR
+ e20  PUSH 0xa2
+ e4e  PUSH_BYTE_AT 0x16 ( 0 )
+ e7c  XOR
+ e80  PUSH 0xfd
+ eae  XOR
+ eb2  OR
+ eb5  PUSH 0x0
+ ee3  if TOP == TOP1: goto 0xf77
+ f11  PUSH 0xbb
+ f3f  PUSH 0x19
+ f6d  WRITE <len> <offset>
+ f73  EXIT
+ f77  PUSH_INT_AT 0x8c ( 4294967295 )
+ fa5  DUP
+ fab  BOOL
+ fae  PUSH_INT_AT 0x17 ( 0 )
+ fdc  TOP >> 0
+100c  BOOL
+100f  if TOP == TOP1: goto 0x1129
+103d  TOP >> 1
+106d  PUSH_INT_AT 0x80 ( 3988292384 )
+109b  XOR
+109f  PUSH 0x0
+10cd  PUSH 0x0
+10fb  if TOP == TOP1: goto 0x1159
+1129  TOP >> 1
+1159  DUP
+115f  BOOL
+1162  PUSH_INT_AT 0x17 ( 0 )
+1190  TOP >> 1
+11c0  BOOL
+11c3  if TOP == TOP1: goto 0x12dd
+11f1  TOP >> 1
+1221  PUSH_INT_AT 0x80 ( 3988292384 )
+124f  XOR
+1253  PUSH 0x0
+1281  PUSH 0x0
+12af  if TOP == TOP1: goto 0x130d
+12dd  TOP >> 1
+130d  DUP
+1313  BOOL
+1316  PUSH_INT_AT 0x17 ( 0 )
+1344  TOP >> 2
+1374  BOOL
+1377  if TOP == TOP1: goto 0x1491
+13a5  TOP >> 1
+13d5  PUSH_INT_AT 0x80 ( 3988292384 )
+1403  XOR
+1407  PUSH 0x0
+1435  PUSH 0x0
+1463  if TOP == TOP1: goto 0x14c1
+1491  TOP >> 1
+14c1  DUP
+14c7  BOOL
+14ca  PUSH_INT_AT 0x17 ( 0 )
+14f8  TOP >> 3
+1528  BOOL
+152b  if TOP == TOP1: goto 0x1645
+1559  TOP >> 1
+1589  PUSH_INT_AT 0x80 ( 3988292384 )
+15b7  XOR
+15bb  PUSH 0x0
+15e9  PUSH 0x0
+1617  if TOP == TOP1: goto 0x1675
+1645  TOP >> 1
+1675  DUP
+167b  BOOL
+167e  PUSH_INT_AT 0x17 ( 0 )
+16ac  TOP >> 4
+16dc  BOOL
+16df  if TOP == TOP1: goto 0x17f9
+170d  TOP >> 1
+173d  PUSH_INT_AT 0x80 ( 3988292384 )
+176b  XOR
+176f  PUSH 0x0
+179d  PUSH 0x0
+17cb  if TOP == TOP1: goto 0x1829
+17f9  TOP >> 1
+1829  DUP
+182f  BOOL
+1832  PUSH_INT_AT 0x17 ( 0 )
+1860  TOP >> 5
+1890  BOOL
+1893  if TOP == TOP1: goto 0x19ad
+18c1  TOP >> 1
+18f1  PUSH_INT_AT 0x80 ( 3988292384 )
+191f  XOR
+1923  PUSH 0x0
+1951  PUSH 0x0
+197f  if TOP == TOP1: goto 0x19dd
+19ad  TOP >> 1
+19dd  DUP
+19e3  BOOL
+19e6  PUSH_INT_AT 0x17 ( 0 )
+1a14  TOP >> 6
+1a44  BOOL
+1a47  if TOP == TOP1: goto 0x1b61
+1a75  TOP >> 1
+1aa5  PUSH_INT_AT 0x80 ( 3988292384 )
+1ad3  XOR
+1ad7  PUSH 0x0
+1b05  PUSH 0x0
+1b33  if TOP == TOP1: goto 0x1b91
+1b61  TOP >> 1
+1b91  DUP
+1b97  BOOL
+1b9a  PUSH_INT_AT 0x17 ( 0 )
+1bc8  TOP >> 7
+1bf8  BOOL
+1bfb  if TOP == TOP1: goto 0x1d15
+1c29  TOP >> 1
+1c59  PUSH_INT_AT 0x80 ( 3988292384 )
+1c87  XOR
+1c8b  PUSH 0x0
+1cb9  PUSH 0x0
+1ce7  if TOP == TOP1: goto 0x1d45
+1d15  TOP >> 1
+1d45  DUP
+1d4b  BOOL
+1d4e  PUSH_INT_AT 0x17 ( 0 )
+1d7c  TOP >> 8
+1dac  BOOL
+1daf  if TOP == TOP1: goto 0x1ec9
+1ddd  TOP >> 1
+1e0d  PUSH_INT_AT 0x80 ( 3988292384 )
+1e3b  XOR
+1e3f  PUSH 0x0
+1e6d  PUSH 0x0
+1e9b  if TOP == TOP1: goto 0x1ef9
+1ec9  TOP >> 1
+1ef9  DUP
+1eff  BOOL
+1f02  PUSH_INT_AT 0x17 ( 0 )
+1f30  TOP >> 9
+1f60  BOOL
+1f63  if TOP == TOP1: goto 0x207d
+1f91  TOP >> 1
+1fc1  PUSH_INT_AT 0x80 ( 3988292384 )
+1fef  XOR
+1ff3  PUSH 0x0
+2021  PUSH 0x0
+204f  if TOP == TOP1: goto 0x20ad
+207d  TOP >> 1
+20ad  DUP
+20b3  BOOL
+20b6  PUSH_INT_AT 0x17 ( 0 )
+20e4  TOP >> 10
+2114  BOOL
+2117  if TOP == TOP1: goto 0x2231
+2145  TOP >> 1
+2175  PUSH_INT_AT 0x80 ( 3988292384 )
+21a3  XOR
+21a7  PUSH 0x0
+21d5  PUSH 0x0
+2203  if TOP == TOP1: goto 0x2261
+2231  TOP >> 1
+2261  DUP
+2267  BOOL
+226a  PUSH_INT_AT 0x17 ( 0 )
+2298  TOP >> 11
+22c8  BOOL
+22cb  if TOP == TOP1: goto 0x23e5
+22f9  TOP >> 1
+2329  PUSH_INT_AT 0x80 ( 3988292384 )
+2357  XOR
+235b  PUSH 0x0
+2389  PUSH 0x0
+23b7  if TOP == TOP1: goto 0x2415
+23e5  TOP >> 1
+2415  DUP
+241b  BOOL
+241e  PUSH_INT_AT 0x17 ( 0 )
+244c  TOP >> 12
+247c  BOOL
+247f  if TOP == TOP1: goto 0x2599
+24ad  TOP >> 1
+24dd  PUSH_INT_AT 0x80 ( 3988292384 )
+250b  XOR
+250f  PUSH 0x0
+253d  PUSH 0x0
+256b  if TOP == TOP1: goto 0x25c9
+2599  TOP >> 1
+25c9  DUP
+25cf  BOOL
+25d2  PUSH_INT_AT 0x17 ( 0 )
+2600  TOP >> 13
+2630  BOOL
+2633  if TOP == TOP1: goto 0x274d
+2661  TOP >> 1
+2691  PUSH_INT_AT 0x80 ( 3988292384 )
+26bf  XOR
+26c3  PUSH 0x0
+26f1  PUSH 0x0
+271f  if TOP == TOP1: goto 0x277d
+274d  TOP >> 1
+277d  DUP
+2783  BOOL
+2786  PUSH_INT_AT 0x17 ( 0 )
+27b4  TOP >> 14
+27e4  BOOL
+27e7  if TOP == TOP1: goto 0x2901
+2815  TOP >> 1
+2845  PUSH_INT_AT 0x80 ( 3988292384 )
+2873  XOR
+2877  PUSH 0x0
+28a5  PUSH 0x0
+28d3  if TOP == TOP1: goto 0x2931
+2901  TOP >> 1
+2931  DUP
+2937  BOOL
+293a  PUSH_INT_AT 0x17 ( 0 )
+2968  TOP >> 15
+2998  BOOL
+299b  if TOP == TOP1: goto 0x2ab5
+29c9  TOP >> 1
+29f9  PUSH_INT_AT 0x80 ( 3988292384 )
+2a27  XOR
+2a2b  PUSH 0x0
+2a59  PUSH 0x0
+2a87  if TOP == TOP1: goto 0x2ae5
+2ab5  TOP >> 1
+2ae5  DUP
+2aeb  BOOL
+2aee  PUSH_INT_AT 0x17 ( 0 )
+2b1c  TOP >> 16
+2b4c  BOOL
+2b4f  if TOP == TOP1: goto 0x2c69
+2b7d  TOP >> 1
+2bad  PUSH_INT_AT 0x80 ( 3988292384 )
+2bdb  XOR
+2bdf  PUSH 0x0
+2c0d  PUSH 0x0
+2c3b  if TOP == TOP1: goto 0x2c99
+2c69  TOP >> 1
+2c99  DUP
+2c9f  BOOL
+2ca2  PUSH_INT_AT 0x17 ( 0 )
+2cd0  TOP >> 17
+2d00  BOOL
+2d03  if TOP == TOP1: goto 0x2e1d
+2d31  TOP >> 1
+2d61  PUSH_INT_AT 0x80 ( 3988292384 )
+2d8f  XOR
+2d93  PUSH 0x0
+2dc1  PUSH 0x0
+2def  if TOP == TOP1: goto 0x2e4d
+2e1d  TOP >> 1
+2e4d  DUP
+2e53  BOOL
+2e56  PUSH_INT_AT 0x17 ( 0 )
+2e84  TOP >> 18
+2eb4  BOOL
+2eb7  if TOP == TOP1: goto 0x2fd1
+2ee5  TOP >> 1
+2f15  PUSH_INT_AT 0x80 ( 3988292384 )
+2f43  XOR
+2f47  PUSH 0x0
+2f75  PUSH 0x0
+2fa3  if TOP == TOP1: goto 0x3001
+2fd1  TOP >> 1
+3001  DUP
+3007  BOOL
+300a  PUSH_INT_AT 0x17 ( 0 )
+3038  TOP >> 19
+3068  BOOL
+306b  if TOP == TOP1: goto 0x3185
+3099  TOP >> 1
+30c9  PUSH_INT_AT 0x80 ( 3988292384 )
+30f7  XOR
+30fb  PUSH 0x0
+3129  PUSH 0x0
+3157  if TOP == TOP1: goto 0x31b5
+3185  TOP >> 1
+31b5  DUP
+31bb  BOOL
+31be  PUSH_INT_AT 0x17 ( 0 )
+31ec  TOP >> 20
+321c  BOOL
+321f  if TOP == TOP1: goto 0x3339
+324d  TOP >> 1
+327d  PUSH_INT_AT 0x80 ( 3988292384 )
+32ab  XOR
+32af  PUSH 0x0
+32dd  PUSH 0x0
+330b  if TOP == TOP1: goto 0x3369
+3339  TOP >> 1
+3369  DUP
+336f  BOOL
+3372  PUSH_INT_AT 0x17 ( 0 )
+33a0  TOP >> 21
+33d0  BOOL
+33d3  if TOP == TOP1: goto 0x34ed
+3401  TOP >> 1
+3431  PUSH_INT_AT 0x80 ( 3988292384 )
+345f  XOR
+3463  PUSH 0x0
+3491  PUSH 0x0
+34bf  if TOP == TOP1: goto 0x351d
+34ed  TOP >> 1
+351d  DUP
+3523  BOOL
+3526  PUSH_INT_AT 0x17 ( 0 )
+3554  TOP >> 22
+3584  BOOL
+3587  if TOP == TOP1: goto 0x36a1
+35b5  TOP >> 1
+35e5  PUSH_INT_AT 0x80 ( 3988292384 )
+3613  XOR
+3617  PUSH 0x0
+3645  PUSH 0x0
+3673  if TOP == TOP1: goto 0x36d1
+36a1  TOP >> 1
+36d1  DUP
+36d7  BOOL
+36da  PUSH_INT_AT 0x17 ( 0 )
+3708  TOP >> 23
+3738  BOOL
+373b  if TOP == TOP1: goto 0x3855
+3769  TOP >> 1
+3799  PUSH_INT_AT 0x80 ( 3988292384 )
+37c7  XOR
+37cb  PUSH 0x0
+37f9  PUSH 0x0
+3827  if TOP == TOP1: goto 0x3885
+3855  TOP >> 1
+3885  DUP
+388b  BOOL
+388e  PUSH_INT_AT 0x17 ( 0 )
+38bc  TOP >> 24
+38ec  BOOL
+38ef  if TOP == TOP1: goto 0x3a09
+391d  TOP >> 1
+394d  PUSH_INT_AT 0x80 ( 3988292384 )
+397b  XOR
+397f  PUSH 0x0
+39ad  PUSH 0x0
+39db  if TOP == TOP1: goto 0x3a39
+3a09  TOP >> 1
+3a39  DUP
+3a3f  BOOL
+3a42  PUSH_INT_AT 0x17 ( 0 )
+3a70  TOP >> 25
+3aa0  BOOL
+3aa3  if TOP == TOP1: goto 0x3bbd
+3ad1  TOP >> 1
+3b01  PUSH_INT_AT 0x80 ( 3988292384 )
+3b2f  XOR
+3b33  PUSH 0x0
+3b61  PUSH 0x0
+3b8f  if TOP == TOP1: goto 0x3bed
+3bbd  TOP >> 1
+3bed  DUP
+3bf3  BOOL
+3bf6  PUSH_INT_AT 0x17 ( 0 )
+3c24  TOP >> 26
+3c54  BOOL
+3c57  if TOP == TOP1: goto 0x3d71
+3c85  TOP >> 1
+3cb5  PUSH_INT_AT 0x80 ( 3988292384 )
+3ce3  XOR
+3ce7  PUSH 0x0
+3d15  PUSH 0x0
+3d43  if TOP == TOP1: goto 0x3da1
+3d71  TOP >> 1
+3da1  DUP
+3da7  BOOL
+3daa  PUSH_INT_AT 0x17 ( 0 )
+3dd8  TOP >> 27
+3e08  BOOL
+3e0b  if TOP == TOP1: goto 0x3f25
+3e39  TOP >> 1
+3e69  PUSH_INT_AT 0x80 ( 3988292384 )
+3e97  XOR
+3e9b  PUSH 0x0
+3ec9  PUSH 0x0
+3ef7  if TOP == TOP1: goto 0x3f55
+3f25  TOP >> 1
+3f55  DUP
+3f5b  BOOL
+3f5e  PUSH_INT_AT 0x17 ( 0 )
+3f8c  TOP >> 28
+3fbc  BOOL
+3fbf  if TOP == TOP1: goto 0x40d9
+3fed  TOP >> 1
+401d  PUSH_INT_AT 0x80 ( 3988292384 )
+404b  XOR
+404f  PUSH 0x0
+407d  PUSH 0x0
+40ab  if TOP == TOP1: goto 0x4109
+40d9  TOP >> 1
+4109  DUP
+410f  BOOL
+4112  PUSH_INT_AT 0x17 ( 0 )
+4140  TOP >> 29
+4170  BOOL
+4173  if TOP == TOP1: goto 0x428d
+41a1  TOP >> 1
+41d1  PUSH_INT_AT 0x80 ( 3988292384 )
+41ff  XOR
+4203  PUSH 0x0
+4231  PUSH 0x0
+425f  if TOP == TOP1: goto 0x42bd
+428d  TOP >> 1
+42bd  DUP
+42c3  BOOL
+42c6  PUSH_INT_AT 0x17 ( 0 )
+42f4  TOP >> 30
+4324  BOOL
+4327  if TOP == TOP1: goto 0x4441
+4355  TOP >> 1
+4385  PUSH_INT_AT 0x80 ( 3988292384 )
+43b3  XOR
+43b7  PUSH 0x0
+43e5  PUSH 0x0
+4413  if TOP == TOP1: goto 0x4471
+4441  TOP >> 1
+4471  DUP
+4477  BOOL
+447a  PUSH_INT_AT 0x17 ( 0 )
+44a8  TOP >> 31
+44d8  BOOL
+44db  if TOP == TOP1: goto 0x45f5
+4509  TOP >> 1
+4539  PUSH_INT_AT 0x80 ( 3988292384 )
+4567  XOR
+456b  PUSH 0x0
+4599  PUSH 0x0
+45c7  if TOP == TOP1: goto 0x4625
+45f5  TOP >> 1
+4625  PUSH_INT_AT 0x88 ( 4094592094 )
+4653  XOR
+4657  PUSH 0x0
+4685  if TOP == TOP1: goto 0x4719
+46b3  PUSH 0xd4
+46e1  PUSH 0x17
+470f  WRITE <len> <offset>
+4715  EXIT
+4719  PUSH 0xeb
+4747  PUSH 0x15
+4775  WRITE <len> <offset>
+477b  PUSH 0x0
+47a9  PUSH 0x1b
+47d7  WRITE <len> <offset>
+47dd  PUSH 0x100
+480b  PUSH 0x2
+4839  WRITE <len> <offset>
+483f  EXIT
+```
+
+0xf40e845e
+0x24e8df5a
+
+```
+WRITE 0x90 0x17
+WRITE 0xa7 0x14
+READ 0 0x1b
+a = 0
+a |= 0xf2 ^ [0x0] ^ 0x9c
+a |= 0xea ^ [0x1] ^ 0xd9
+a |= 0x82 ^ [0x2] ^ 0xf5
+a |= 0x36 ^ [0x3] ^ 0x69
+a |= 0x8e ^ [0x4] ^ 0xef
+a |= 0x12 ^ [0x5] ^ 0x75
+a |= 0x18 ^ [0x6] ^ 0x2b
+a |= 0x73 ^ [0x7] ^ 0x2c
+a |= 0x7b ^ [0x8] ^ 0xd
+a |= 0x11 ^ [0x9] ^ 0x20
+a |= 0x5b ^ [0xa] ^ 0x29
+a |= 0x69 ^ [0xb] ^ 0x1d
+a |= 0x38 ^ [0xc] ^ 0x4d
+a |= 0x8a ^ [0xd] ^ 0xbe
+a |= 0xb0 ^ [0xe] ^ 0xdc
+a |= 0x8b ^ [0xf] ^ 0xe2
+a |= 0x8e ^ [0x10] ^ 0xf4
+a |= 0x83 ^ [0x11] ^ 0xb7
+a |= 0xf6 ^ [0x12] ^ 0x82
+a |= 0xc4 ^ [0x13] ^ 0xf5
+a |= 0x39 ^ [0x14] ^ 0x56
+a |= 0xf5 ^ [0x15] ^ 0x9b
+a |= 0xa2 ^ [0x16] ^ 0xfd
+ ee3  if TOP == TOP1: goto 0xf77
+ f11  WRITE "try harder"
+ f73  EXIT
+ f77  x = 4294967295
+      for i in range(32):
+        if x & 1 != ([0x17] >> i) & 1:
+            x = (x >> 1) ^ 3988292384
+        else:
+            x >>= 1
+4685  if x == 4094592094: goto 0x4719
+470f  WRITE 0x17 0xd4 "gotta go cyclic"
+4715  EXIT
+4719  WRITE 0x15 0xeb "Thats the flag: CSCG{"
+477b  WRITE 0x1b 0    <input>
+47dd  WRITE 2 0x100   "}\n"
+483f  EXIT
+```

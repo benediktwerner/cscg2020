@@ -5,121 +5,19 @@ Flag: `CSCG{n3w_ag3_v1rtu4liz4t1on_l0l?}`
 
 Break at  0x0000000008000bfe
 
-```python
-
-OP_BOOL             = 0x959EE2
-OP_SHIFT            = 0xA19EE2
-OP_DUP              = 0xBC80E2
-OP_OR               = 0x859CE2
-OP_WRITE            = 0x8F9CE2
-OP_EXIT             = 0x80929FF0
-OP_XOR              = 0x80949FF0
-OP_JUMP_EQ          = 0x94A49FF0
-OP_READ             = 0x96939FF0
-OP_PUSH_POW_I_INT   = 0xA08C9FF0
-OP_PUSH_POW         = 0xAA929FF0
-OP_PUSH_POW_I_BYTE  = 0xBEA69FF0
-
-ip = 0
-sp = 0
-
-while True:
-    opcode = load_opcode()
-    ip += opcode_length(code[ip])
-
-    if op == OP_EXIT:
-        exit(-1)
-    elif opcode == OP_BOOL:
-        push(pop() & 1)
-    elif opcode == OP_SHIFT:
-        ip += 1
-        arg = load_arg_pow()
-        push(pop() >> arg)
-    elif opcode  == OP_DUP:
-        ip += 1
-        x = pop()
-        push(x)
-        push(x)
-    elif opcode == OP_OR:
-        push(pop() | pop())
-    elif opcode == OP_WRITE:
-        ip += 1
-        length = pop()
-        offset = pop()
-        print(header[offset:offset+length])
-    elif opcode == OP_READ:
-        length = pop()
-        offset = pop()
-        header[offset:offset+length] = input()
-    elif opcode == OP_PUSH_POW:
-        arg = load_arg_pow()
-        push(arg)
-    elif opcode == OP_PUSH_POW_I_BYTE:
-        arg = load_arg_pow()
-        push(byte(header[arg]))
-    elif opcode == OP_PUSH_POW_I_INT:
-        arg = load_arg_pow()
-        push(header[arg])
-    elif opcode == OP_XOR:
-        push(pop() ^ pop())
-    elif opcode == OP_JUMP_EQ:
-        arg = load_arg_pow()
-        if pop() == pop():
-            ip += arg
-    else:
-        print("Unknown opcode")
-
-
-def load_arg_pow():
-    result = 0
-
-    for _ in range(3):
-        a = load_arg()
-        b = load_arg()
-        result += b ** a
-
-    return result
-
-
-def load_arg():
-    val = load_opcode() - 48
-    ptr = opcode_len(code[ip + 1]) + 1
-    ip += opcode_len(code[ip + ptr]) + ptr
-    return val
-
-
-def load_opcode():
-    op = 0
-
-    for i in range(opcode_len(code[ip])):
-        op |= (code[ip+i] << i * 8) & (255 << i * 8)
-    
-    return op
-
-
-def opcode_len(op):
-    if 0 <= op < 128:
-        return 1
-
-    for i in range(2, 5):
-        if op & 128 >> i == 0:
-            return i
-    
-    return -1
-```
 
 # Program
 
 ```
    0  PUSH 0x90
   2e  PUSH 0x17
-  5c  WRITE <len> <offset>
+  5c  WRITE
   62  PUSH 0xa7
   90  PUSH 0x14
-  be  WRITE <len> <offset>
+  be  WRITE
   c4  PUSH 0x0
   f2  PUSH 0x1b
- 120  READ <len> <offset>
+ 120  READ
  124  PUSH 0x0
  152  PUSH 0xf2
  180  PUSH_BYTE_AT 0x0 ( 0 )
@@ -263,14 +161,14 @@ def opcode_len(op):
  ee3  if TOP == TOP1: goto 0xf77
  f11  PUSH 0xbb
  f3f  PUSH 0x19
- f6d  WRITE <len> <offset>
+ f6d  WRITE
  f73  EXIT
  f77  PUSH_INT_AT 0x8c ( 4294967295 )
  fa5  DUP
- fab  BOOL
+ fab  LOWEST_BIT
  fae  PUSH_INT_AT 0x17 ( 0 )
  fdc  TOP >> 0
-100c  BOOL
+100c  LOWEST_BIT
 100f  if TOP == TOP1: goto 0x1129
 103d  TOP >> 1
 106d  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -280,10 +178,10 @@ def opcode_len(op):
 10fb  if TOP == TOP1: goto 0x1159
 1129  TOP >> 1
 1159  DUP
-115f  BOOL
+115f  LOWEST_BIT
 1162  PUSH_INT_AT 0x17 ( 0 )
 1190  TOP >> 1
-11c0  BOOL
+11c0  LOWEST_BIT
 11c3  if TOP == TOP1: goto 0x12dd
 11f1  TOP >> 1
 1221  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -293,10 +191,10 @@ def opcode_len(op):
 12af  if TOP == TOP1: goto 0x130d
 12dd  TOP >> 1
 130d  DUP
-1313  BOOL
+1313  LOWEST_BIT
 1316  PUSH_INT_AT 0x17 ( 0 )
 1344  TOP >> 2
-1374  BOOL
+1374  LOWEST_BIT
 1377  if TOP == TOP1: goto 0x1491
 13a5  TOP >> 1
 13d5  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -306,10 +204,10 @@ def opcode_len(op):
 1463  if TOP == TOP1: goto 0x14c1
 1491  TOP >> 1
 14c1  DUP
-14c7  BOOL
+14c7  LOWEST_BIT
 14ca  PUSH_INT_AT 0x17 ( 0 )
 14f8  TOP >> 3
-1528  BOOL
+1528  LOWEST_BIT
 152b  if TOP == TOP1: goto 0x1645
 1559  TOP >> 1
 1589  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -319,10 +217,10 @@ def opcode_len(op):
 1617  if TOP == TOP1: goto 0x1675
 1645  TOP >> 1
 1675  DUP
-167b  BOOL
+167b  LOWEST_BIT
 167e  PUSH_INT_AT 0x17 ( 0 )
 16ac  TOP >> 4
-16dc  BOOL
+16dc  LOWEST_BIT
 16df  if TOP == TOP1: goto 0x17f9
 170d  TOP >> 1
 173d  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -332,10 +230,10 @@ def opcode_len(op):
 17cb  if TOP == TOP1: goto 0x1829
 17f9  TOP >> 1
 1829  DUP
-182f  BOOL
+182f  LOWEST_BIT
 1832  PUSH_INT_AT 0x17 ( 0 )
 1860  TOP >> 5
-1890  BOOL
+1890  LOWEST_BIT
 1893  if TOP == TOP1: goto 0x19ad
 18c1  TOP >> 1
 18f1  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -345,10 +243,10 @@ def opcode_len(op):
 197f  if TOP == TOP1: goto 0x19dd
 19ad  TOP >> 1
 19dd  DUP
-19e3  BOOL
+19e3  LOWEST_BIT
 19e6  PUSH_INT_AT 0x17 ( 0 )
 1a14  TOP >> 6
-1a44  BOOL
+1a44  LOWEST_BIT
 1a47  if TOP == TOP1: goto 0x1b61
 1a75  TOP >> 1
 1aa5  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -358,10 +256,10 @@ def opcode_len(op):
 1b33  if TOP == TOP1: goto 0x1b91
 1b61  TOP >> 1
 1b91  DUP
-1b97  BOOL
+1b97  LOWEST_BIT
 1b9a  PUSH_INT_AT 0x17 ( 0 )
 1bc8  TOP >> 7
-1bf8  BOOL
+1bf8  LOWEST_BIT
 1bfb  if TOP == TOP1: goto 0x1d15
 1c29  TOP >> 1
 1c59  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -371,10 +269,10 @@ def opcode_len(op):
 1ce7  if TOP == TOP1: goto 0x1d45
 1d15  TOP >> 1
 1d45  DUP
-1d4b  BOOL
+1d4b  LOWEST_BIT
 1d4e  PUSH_INT_AT 0x17 ( 0 )
 1d7c  TOP >> 8
-1dac  BOOL
+1dac  LOWEST_BIT
 1daf  if TOP == TOP1: goto 0x1ec9
 1ddd  TOP >> 1
 1e0d  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -384,10 +282,10 @@ def opcode_len(op):
 1e9b  if TOP == TOP1: goto 0x1ef9
 1ec9  TOP >> 1
 1ef9  DUP
-1eff  BOOL
+1eff  LOWEST_BIT
 1f02  PUSH_INT_AT 0x17 ( 0 )
 1f30  TOP >> 9
-1f60  BOOL
+1f60  LOWEST_BIT
 1f63  if TOP == TOP1: goto 0x207d
 1f91  TOP >> 1
 1fc1  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -397,10 +295,10 @@ def opcode_len(op):
 204f  if TOP == TOP1: goto 0x20ad
 207d  TOP >> 1
 20ad  DUP
-20b3  BOOL
+20b3  LOWEST_BIT
 20b6  PUSH_INT_AT 0x17 ( 0 )
 20e4  TOP >> 10
-2114  BOOL
+2114  LOWEST_BIT
 2117  if TOP == TOP1: goto 0x2231
 2145  TOP >> 1
 2175  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -410,10 +308,10 @@ def opcode_len(op):
 2203  if TOP == TOP1: goto 0x2261
 2231  TOP >> 1
 2261  DUP
-2267  BOOL
+2267  LOWEST_BIT
 226a  PUSH_INT_AT 0x17 ( 0 )
 2298  TOP >> 11
-22c8  BOOL
+22c8  LOWEST_BIT
 22cb  if TOP == TOP1: goto 0x23e5
 22f9  TOP >> 1
 2329  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -423,10 +321,10 @@ def opcode_len(op):
 23b7  if TOP == TOP1: goto 0x2415
 23e5  TOP >> 1
 2415  DUP
-241b  BOOL
+241b  LOWEST_BIT
 241e  PUSH_INT_AT 0x17 ( 0 )
 244c  TOP >> 12
-247c  BOOL
+247c  LOWEST_BIT
 247f  if TOP == TOP1: goto 0x2599
 24ad  TOP >> 1
 24dd  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -436,10 +334,10 @@ def opcode_len(op):
 256b  if TOP == TOP1: goto 0x25c9
 2599  TOP >> 1
 25c9  DUP
-25cf  BOOL
+25cf  LOWEST_BIT
 25d2  PUSH_INT_AT 0x17 ( 0 )
 2600  TOP >> 13
-2630  BOOL
+2630  LOWEST_BIT
 2633  if TOP == TOP1: goto 0x274d
 2661  TOP >> 1
 2691  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -449,10 +347,10 @@ def opcode_len(op):
 271f  if TOP == TOP1: goto 0x277d
 274d  TOP >> 1
 277d  DUP
-2783  BOOL
+2783  LOWEST_BIT
 2786  PUSH_INT_AT 0x17 ( 0 )
 27b4  TOP >> 14
-27e4  BOOL
+27e4  LOWEST_BIT
 27e7  if TOP == TOP1: goto 0x2901
 2815  TOP >> 1
 2845  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -462,10 +360,10 @@ def opcode_len(op):
 28d3  if TOP == TOP1: goto 0x2931
 2901  TOP >> 1
 2931  DUP
-2937  BOOL
+2937  LOWEST_BIT
 293a  PUSH_INT_AT 0x17 ( 0 )
 2968  TOP >> 15
-2998  BOOL
+2998  LOWEST_BIT
 299b  if TOP == TOP1: goto 0x2ab5
 29c9  TOP >> 1
 29f9  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -475,10 +373,10 @@ def opcode_len(op):
 2a87  if TOP == TOP1: goto 0x2ae5
 2ab5  TOP >> 1
 2ae5  DUP
-2aeb  BOOL
+2aeb  LOWEST_BIT
 2aee  PUSH_INT_AT 0x17 ( 0 )
 2b1c  TOP >> 16
-2b4c  BOOL
+2b4c  LOWEST_BIT
 2b4f  if TOP == TOP1: goto 0x2c69
 2b7d  TOP >> 1
 2bad  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -488,10 +386,10 @@ def opcode_len(op):
 2c3b  if TOP == TOP1: goto 0x2c99
 2c69  TOP >> 1
 2c99  DUP
-2c9f  BOOL
+2c9f  LOWEST_BIT
 2ca2  PUSH_INT_AT 0x17 ( 0 )
 2cd0  TOP >> 17
-2d00  BOOL
+2d00  LOWEST_BIT
 2d03  if TOP == TOP1: goto 0x2e1d
 2d31  TOP >> 1
 2d61  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -501,10 +399,10 @@ def opcode_len(op):
 2def  if TOP == TOP1: goto 0x2e4d
 2e1d  TOP >> 1
 2e4d  DUP
-2e53  BOOL
+2e53  LOWEST_BIT
 2e56  PUSH_INT_AT 0x17 ( 0 )
 2e84  TOP >> 18
-2eb4  BOOL
+2eb4  LOWEST_BIT
 2eb7  if TOP == TOP1: goto 0x2fd1
 2ee5  TOP >> 1
 2f15  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -514,10 +412,10 @@ def opcode_len(op):
 2fa3  if TOP == TOP1: goto 0x3001
 2fd1  TOP >> 1
 3001  DUP
-3007  BOOL
+3007  LOWEST_BIT
 300a  PUSH_INT_AT 0x17 ( 0 )
 3038  TOP >> 19
-3068  BOOL
+3068  LOWEST_BIT
 306b  if TOP == TOP1: goto 0x3185
 3099  TOP >> 1
 30c9  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -527,10 +425,10 @@ def opcode_len(op):
 3157  if TOP == TOP1: goto 0x31b5
 3185  TOP >> 1
 31b5  DUP
-31bb  BOOL
+31bb  LOWEST_BIT
 31be  PUSH_INT_AT 0x17 ( 0 )
 31ec  TOP >> 20
-321c  BOOL
+321c  LOWEST_BIT
 321f  if TOP == TOP1: goto 0x3339
 324d  TOP >> 1
 327d  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -540,10 +438,10 @@ def opcode_len(op):
 330b  if TOP == TOP1: goto 0x3369
 3339  TOP >> 1
 3369  DUP
-336f  BOOL
+336f  LOWEST_BIT
 3372  PUSH_INT_AT 0x17 ( 0 )
 33a0  TOP >> 21
-33d0  BOOL
+33d0  LOWEST_BIT
 33d3  if TOP == TOP1: goto 0x34ed
 3401  TOP >> 1
 3431  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -553,10 +451,10 @@ def opcode_len(op):
 34bf  if TOP == TOP1: goto 0x351d
 34ed  TOP >> 1
 351d  DUP
-3523  BOOL
+3523  LOWEST_BIT
 3526  PUSH_INT_AT 0x17 ( 0 )
 3554  TOP >> 22
-3584  BOOL
+3584  LOWEST_BIT
 3587  if TOP == TOP1: goto 0x36a1
 35b5  TOP >> 1
 35e5  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -566,10 +464,10 @@ def opcode_len(op):
 3673  if TOP == TOP1: goto 0x36d1
 36a1  TOP >> 1
 36d1  DUP
-36d7  BOOL
+36d7  LOWEST_BIT
 36da  PUSH_INT_AT 0x17 ( 0 )
 3708  TOP >> 23
-3738  BOOL
+3738  LOWEST_BIT
 373b  if TOP == TOP1: goto 0x3855
 3769  TOP >> 1
 3799  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -579,10 +477,10 @@ def opcode_len(op):
 3827  if TOP == TOP1: goto 0x3885
 3855  TOP >> 1
 3885  DUP
-388b  BOOL
+388b  LOWEST_BIT
 388e  PUSH_INT_AT 0x17 ( 0 )
 38bc  TOP >> 24
-38ec  BOOL
+38ec  LOWEST_BIT
 38ef  if TOP == TOP1: goto 0x3a09
 391d  TOP >> 1
 394d  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -592,10 +490,10 @@ def opcode_len(op):
 39db  if TOP == TOP1: goto 0x3a39
 3a09  TOP >> 1
 3a39  DUP
-3a3f  BOOL
+3a3f  LOWEST_BIT
 3a42  PUSH_INT_AT 0x17 ( 0 )
 3a70  TOP >> 25
-3aa0  BOOL
+3aa0  LOWEST_BIT
 3aa3  if TOP == TOP1: goto 0x3bbd
 3ad1  TOP >> 1
 3b01  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -605,10 +503,10 @@ def opcode_len(op):
 3b8f  if TOP == TOP1: goto 0x3bed
 3bbd  TOP >> 1
 3bed  DUP
-3bf3  BOOL
+3bf3  LOWEST_BIT
 3bf6  PUSH_INT_AT 0x17 ( 0 )
 3c24  TOP >> 26
-3c54  BOOL
+3c54  LOWEST_BIT
 3c57  if TOP == TOP1: goto 0x3d71
 3c85  TOP >> 1
 3cb5  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -618,10 +516,10 @@ def opcode_len(op):
 3d43  if TOP == TOP1: goto 0x3da1
 3d71  TOP >> 1
 3da1  DUP
-3da7  BOOL
+3da7  LOWEST_BIT
 3daa  PUSH_INT_AT 0x17 ( 0 )
 3dd8  TOP >> 27
-3e08  BOOL
+3e08  LOWEST_BIT
 3e0b  if TOP == TOP1: goto 0x3f25
 3e39  TOP >> 1
 3e69  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -631,10 +529,10 @@ def opcode_len(op):
 3ef7  if TOP == TOP1: goto 0x3f55
 3f25  TOP >> 1
 3f55  DUP
-3f5b  BOOL
+3f5b  LOWEST_BIT
 3f5e  PUSH_INT_AT 0x17 ( 0 )
 3f8c  TOP >> 28
-3fbc  BOOL
+3fbc  LOWEST_BIT
 3fbf  if TOP == TOP1: goto 0x40d9
 3fed  TOP >> 1
 401d  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -644,10 +542,10 @@ def opcode_len(op):
 40ab  if TOP == TOP1: goto 0x4109
 40d9  TOP >> 1
 4109  DUP
-410f  BOOL
+410f  LOWEST_BIT
 4112  PUSH_INT_AT 0x17 ( 0 )
 4140  TOP >> 29
-4170  BOOL
+4170  LOWEST_BIT
 4173  if TOP == TOP1: goto 0x428d
 41a1  TOP >> 1
 41d1  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -657,10 +555,10 @@ def opcode_len(op):
 425f  if TOP == TOP1: goto 0x42bd
 428d  TOP >> 1
 42bd  DUP
-42c3  BOOL
+42c3  LOWEST_BIT
 42c6  PUSH_INT_AT 0x17 ( 0 )
 42f4  TOP >> 30
-4324  BOOL
+4324  LOWEST_BIT
 4327  if TOP == TOP1: goto 0x4441
 4355  TOP >> 1
 4385  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -670,10 +568,10 @@ def opcode_len(op):
 4413  if TOP == TOP1: goto 0x4471
 4441  TOP >> 1
 4471  DUP
-4477  BOOL
+4477  LOWEST_BIT
 447a  PUSH_INT_AT 0x17 ( 0 )
 44a8  TOP >> 31
-44d8  BOOL
+44d8  LOWEST_BIT
 44db  if TOP == TOP1: goto 0x45f5
 4509  TOP >> 1
 4539  PUSH_INT_AT 0x80 ( 3988292384 )
@@ -688,17 +586,17 @@ def opcode_len(op):
 4685  if TOP == TOP1: goto 0x4719
 46b3  PUSH 0xd4
 46e1  PUSH 0x17
-470f  WRITE <len> <offset>
+470f  WRITE
 4715  EXIT
 4719  PUSH 0xeb
 4747  PUSH 0x15
-4775  WRITE <len> <offset>
+4775  WRITE
 477b  PUSH 0x0
 47a9  PUSH 0x1b
-47d7  WRITE <len> <offset>
+47d7  WRITE
 47dd  PUSH 0x100
 480b  PUSH 0x2
-4839  WRITE <len> <offset>
+4839  WRITE
 483f  EXIT
 ```
 

@@ -25,7 +25,6 @@ def opcode_length(op):
         if op & 128 >> i == 0:
             return i
 
-    assert False
     return -1
 
 
@@ -57,54 +56,64 @@ def load_opcode():
     return op
 
 
+def push(val):
+    stack.append(val)
+
+
+def pop():
+    return stack.pop()
+
+
 with open(argv[1], "rb") as f:
     data = bytearray(f.read(0x200))
     code = bytearray(f.read(0x10000))
 
 ip = 0
+stack = []
 
-while ip < len(code):
-    print(f"{ip:4x}", end="  ")
+while True:
     opcode = load_opcode()
     ip += opcode_length(code[ip])
 
     if opcode == OP_EXIT:
-        print("EXIT")
+        exit(-1)
     elif opcode == OP_LOWEST_BIT:
-        print("LOWEST_BIT")
+        push(pop() & 1)
     elif opcode == OP_SHIFT:
         ip += opcode_length(code[ip])
         arg = load_arg()
-        print("TOP >>", arg)
+        push(pop() >> arg)
     elif opcode == OP_DUP:
         ip += opcode_length(code[ip])
-        print("DUP")
+        x = pop()
+        push(x)
+        push(x)
     elif opcode == OP_OR:
-        print("OR")
+        push(pop() | pop())
     elif opcode == OP_WRITE:
         ip += opcode_length(code[ip])
-        print("WRITE")
+        length = pop()
+        offset = pop()
+        stdout.buffer.write(data[offset : offset + length])
     elif opcode == OP_READ:
-        print("READ")
+        length = pop()
+        offset = pop()
+        inp = input().encode()[:length]
+        data[offset : offset + len(inp)] = inp
     elif opcode == OP_PUSH_IMMEDIATE:
         arg = load_arg()
-        print("PUSH", hex(arg))
+        push(arg)
     elif opcode == OP_PUSH_DATA_BYTE:
         arg = load_arg()
-        print("PUSH_BYTE_AT", hex(arg), "(", data[arg], ")")
+        push(data[arg])
     elif opcode == OP_PUSH_DATA_INT:
         arg = load_arg()
-        print(
-            "PUSH_INT_AT",
-            hex(arg),
-            "(",
-            struct.unpack("I", data[arg : arg + 4])[0],
-            ")",
-        )
+        push(struct.unpack("I", data[arg:arg+4])[0])
     elif opcode == OP_XOR:
-        print("XOR")
+        push(pop() ^ pop())
     elif opcode == OP_JUMP_EQ:
         arg = load_arg()
-        print("if TOP == TOP1: goto", hex(ip + arg))
+        if pop() == pop():
+            ip += arg
     else:
-        print("Unknown opcode:", hex(opcode))
+        print("Unknown opcode")

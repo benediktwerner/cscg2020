@@ -212,7 +212,6 @@ def opcode_length(op):
         if op & 128 >> i == 0:
             return i
 
-    assert False
     return -1
 
 

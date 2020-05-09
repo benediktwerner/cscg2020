@@ -1,35 +1,13 @@
 #!/usr/bin/env python3
 
-import os, re, base64, time
+import base64, os, re, time
 import cv2
 import numpy as np
 import requests
 
 
-ORD_0 = ord("0")
-ORD_9 = ord("9")
-ORD_A = ord("A")
 SIZE = 25
 MIN_Y = 4
-
-HUMAN = 0
-BOT = 1
-
-
-def derotate(img, mask):
-    coords = np.column_stack(np.where(mask > 0))
-    angle = cv2.minAreaRect(coords)[-1]
-    if angle < -45:
-        angle = -(90 + angle)
-    else:
-        angle = -angle
-    h, w = img.shape
-    center = (w // 2, h // 2)
-    M = cv2.getRotationMatrix2D(center, angle, 1.0)
-    rotated = cv2.warpAffine(
-        img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE
-    )
-    return rotated
 
 
 def center(image, rect):
@@ -71,20 +49,19 @@ def merge_overlapping(rects):
 
 
 def char2num(c):
-    o = ord(c)
-    if ORD_0 <= o <= ORD_9:
-        return o - ORD_0
-    return o - ORD_A + 10
+    if "0" <= c <= "9":
+        return ord(c) - ord("0")
+    return ord(c) - ord("A") + 10
 
 
 def num2char(n):
     n = int(n)
     if n < 10:
         return str(n)
-    return chr(n - 10 + ORD_A)
+    return chr(n - 10 + ord("A"))
 
 
-def find_digits(img):
+def find_chars(img):
     _, img_thresh = cv2.threshold(img, 64, 255, cv2.THRESH_BINARY_INV)
     contours, _ = cv2.findContours(
         img_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
@@ -94,97 +71,77 @@ def find_digits(img):
 
     inverted = ~img
 
-    digits = []
+    chars = []
     for i, rect in enumerate(rects):
         if rect[2] > 23:
-            digits.append((HUMAN, center(img, rect)))
+            chars.append((False, center(img, rect)))
             continue
 
-        a = center(inverted, rect)
-        # b = center(img_thresh, rect)
+        char = center(inverted, rect)
+        char = char.reshape(SIZE * SIZE).astype(np.float32)
+        chars.append((True, char))
 
-        d = a.reshape(SIZE * SIZE).astype(np.float32)
-        # d = derotate(a, b).reshape(SIZE * SIZE).astype(np.float32)
-        digits.append((BOT, d))
-
-    return digits
+    return chars
 
 
-def load_img(name):
+def load_train_img(name):
     img = cv2.imread("images/" + name, cv2.IMREAD_GRAYSCALE)
-    digits = find_digits(img)
+    chars = find_chars(img)
 
     labels = name[:-4]
 
-    if any(bot != BOT for bot, _ in digits) or len(digits) != len(labels):
+    if any(not valid for valid, _ in chars) or len(chars) != len(labels):
         return [], []
 
-    return (b for a, b in digits), map(char2num, labels)
+    return (char for _, char in chars), map(char2num, labels)
 
 
-files = os.listdir("images")[:5100]
-images, labels = [], []
-
-print("Loading", len(files), "files")
-
-for fname in files:
-    imgs, lbls = load_img(fname)
-    images.extend(imgs)
-    labels.extend(lbls)
-
-assert len(images) == len(labels)
-
-print("Training on", len(images), "digits")
-
-knn = cv2.ml.KNearest_create()
-knn.train(np.array(images), cv2.ml.ROW_SAMPLE, np.array(labels))
-
-# img = cv2.imread("test.png", cv2.IMREAD_GRAYSCALE)
-# digits = [b for a,b in find_digits(img)]
-
-# ret, result, neighbours, dist = knn.findNearest(np.array(digits), k=5)
-# label = [num2char(d[0]) for d in result]
-# print(label[-3], label[-2])
-
-# cv2.imshow("x", digits[-2].reshape(SIZE, SIZE).astype(np.uint8))
-# cv2.imshow("z", digits[-3].reshape(SIZE, SIZE).astype(np.uint8))
-# cv2.waitKey()
-# cv2.destroyAllWindows()
-# exit()
-
-print("Solving challenge")
-
-regex = re.compile('<img src="data:image/png;base64,([a-zA-Z0-9/+=]+)">')
-
-
-def decode_and_find_digits(img_b64):
+def decode_and_find_chars(img_b64):
     img = base64.b64decode(img_b64)
     img = np.frombuffer(img, np.uint8)
     img = cv2.imdecode(img, cv2.IMREAD_GRAYSCALE)
-    return find_digits(img)
+    return find_chars(img)
 
 
-def solve(digits):
-    knn_todo = []
+def solve(chars):
+    bot = []
     human = []
 
-    for i, (bot, d) in enumerate(digits):
-        if bot == HUMAN:
-            cv2.imshow("x", d)
+    for i, (valid, c) in enumerate(chars):
+        if valid:
+            bot.append(c)
+        else:
+            cv2.imshow("x", c)
             cv2.waitKey()
             cv2.destroyAllWindows()
             x = input("Text: ").upper().replace("O", "0")
             human.append((i, x))
-        else:
-            knn_todo.append(d)
 
-    ret, result, neighbours, dist = knn.findNearest(np.array(knn_todo), k=5)
+    ret, result, neighbours, dist = knn.findNearest(np.array(bot), k=5)
     label = [num2char(d[0]) for d in result]
 
     for i, x in human:
         label.insert(i, x)
 
     return "".join(label)
+
+
+files = os.listdir("images")[:5000]
+images, labels = [], []
+
+print("Loading", len(files), "files")
+
+for fname in files:
+    imgs, lbls = load_train_img(fname)
+    images.extend(imgs)
+    labels.extend(lbls)
+
+print("Training on", len(images), "characters")
+
+knn = cv2.ml.KNearest_create()
+knn.train(np.array(images), cv2.ml.ROW_SAMPLE, np.array(labels))
+
+regex = re.compile('<img src="data:image/png;base64,([a-zA-Z0-9/+=]+)">')
 
 
 while True:
@@ -194,22 +151,19 @@ while True:
 
     for i in range(4):
         start = time.time()
-        imgs = [decode_and_find_digits(img) for img in regex.findall(r.text)]
+
+        imgs = [decode_and_find_chars(img) for img in regex.findall(r.text)]
         print("Got", len(imgs), "images")
 
-        todo = sum(bot == HUMAN for digits in imgs for bot, _ in digits)
+        todo = sum(not valid for chars in imgs for valid, _ in chars)
 
         if todo > 10 or (todo > 0 and i < 2):
-            print("Too many mistakes")
+            print(f"Skipping: Detection too bad ({todo} bad characters)")
             break
         elif todo > 0:
-            print("Human intervention required for", todo, "digits")
+            print("Human intervention required for", todo, "characters")
 
         labels = [solve(img) for img in imgs]
-
-        if i == 3:
-            with open("dump.html", "wb") as f:
-                f.write(r.content)
 
         r = requests.post(
             f"http://hax1.allesctf.net:9200/captcha/{i}",
@@ -217,46 +171,16 @@ while True:
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             cookies=r.cookies,
         )
+
         end = time.time()
 
         if "solution would have been" in r.text or "How can you fail at this" in r.text:
             print("Failed after", round(end - start), "seconds")
-            if i == 3:
-                print(r.text)
-                for i, label in enumerate(labels):
-                    print(i, label)
-                exit()
             break
     else:
-        print(r.text)
-        print(r.cookies)
+        print("Success!")
+
+        with open("flag.html", "wb") as f:
+            f.write(r.content)
+
         break
-
-# cutoff = round(len(images) - 100)
-
-# train_imgs = np.array(images[:cutoff])
-# train_labels = np.array(labels[:cutoff])
-# test_imgs = np.array(images[cutoff:])
-# test_labels = np.array(labels[cutoff:]).reshape(-1, 1)
-
-# print(len(train_imgs), len(train_labels), len(test_imgs), len(test_labels))
-# print("Training on", len(train_imgs))
-
-# knn = cv2.ml.KNearest_create()
-# knn.train(train_imgs, cv2.ml.ROW_SAMPLE, train_labels)
-
-# print("Testing on", len(test_imgs))
-
-# start = time.time()
-# ret, result, neighbours, dist = knn.findNearest(test_imgs, k=5)
-# end = time.time()
-# correct = np.count_nonzero(result == test_labels)
-# accuracy = correct * 100.0 / len(result)
-# print(accuracy, "% after", end-start, "seconds")
-
-# for i in range(10):
-#     print(num2char(result[i][0]), num2char(test_labels[i][0]))
-#     cv2.imshow("x", test_imgs[i].reshape(SIZE, SIZE).astype(np.uint8))
-#     cv2.waitKey()
-
-# cv2.destroyAllWindows()

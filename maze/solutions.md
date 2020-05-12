@@ -13,6 +13,7 @@ Use CheatEngine to overwrite emoji in ServerManager.sendEmoji
 
 Flag: `CSCG{Your_hack_got_reported_to_authorities!}`
 
+
 ## Radar Hack
 
 ```python
@@ -30,3 +31,26 @@ def serfer_position():
 ```
 
 Flag: `CSCG{RADAR_HACK_XYZ}`
+
+
+## Maze Runner
+
+Send the client checkpoint packages to see all checkpoints.
+Send the server fake position packets to teleport and be fast enough (also teleport through walls).
+Limit: 10 units/s and not far outside walls
+
+Flag: `CSCG{SPEEDH4X_MAZE_RUNNER_BUNNYYYY}`
+
+
+## Tower
+
+Teleport hack to move through gate. Upwards teleport to walk over walls and teleport up the tower.
+
+Flag: `CSCG{SOLVED_THE_MAZE...LONG_WAY_BACK!}`
+
+
+## The Floor is Lava
+
+Continously y = 4 to server to avoid lava
+
+Flag: `CSCG{FLYHAX_TOO_CLOSE_TO_THE_SUN!}`

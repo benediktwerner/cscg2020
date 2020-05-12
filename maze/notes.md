@@ -86,3 +86,14 @@ Find x-refs to `sendData`:
 - `ServerManager.sendHeartbeat`
 - `ServerManager.LoginLoop`
 - `ServerManger.UpdateServerPosition`
+
+13 Checkpoints:
+203.0663, 0.0, 193.5695
+179.9401, 0.0, 178.8409
+172.6375, 0.0, 207.5966
+188.1374, 0.0, 233.1886
+165.0695, 0.0, 232.1585
+150.5152, 0.0, 186.5454
+180.0467, 0.0, 161.9501
+165.5152, 0.0, 118.5694
+121.606, 0.0, 96.6812

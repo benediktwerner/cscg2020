@@ -42,7 +42,8 @@ class Proxy2Server(Thread):
             try:
                 result = parser.parse_server(data)
                 if result is not None:
-                    self.game.send(result)
+                    if result:
+                        self.game.send(parser.encrypt(result))
                     continue
             except Exception as e:
                 print("Server parser exception:", e)
@@ -65,7 +66,8 @@ class Game2Proxy(Thread):
             try:
                 result = parser.parse_client(data)
                 if result is not None:
-                    self.game.send(result)
+                    if result:
+                        self.send_to_server(parser.encrypt(result))
                     continue
             except Exception as e:
                 print("Client parser exception:", e)
@@ -84,6 +86,7 @@ class ApiServer(Thread):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind(("0.0.0.0", 80))
         self.sock.listen(1)
+        self.intercept = True
 
         printc(YELLOW, "[api server] listening on port 80")
 
@@ -102,8 +105,10 @@ class ApiServer(Thread):
                 continue
 
             if path == "/api/hostname":
-                response = "localhost"
-                # response = "hax1.allesctf.net"
+                if self.intercept:
+                    response = "localhost"
+                else:
+                    response = "hax1.allesctf.net"
             elif path == "/api/min_port" or path == "/api/max_port":
                 response = str(self.port)
             else:
@@ -127,13 +132,15 @@ min_port = int(get("/api/min_port"))
 max_port = int(get("/api/max_port"))
 port = random.randrange(min_port, max_port + 1)
 
-ApiServer(port).start()
+api_server = ApiServer(port)
+api_server.start()
 
 p2s = Proxy2Server()
 g2p = Game2Proxy(port)
 
 p2s.game = g2p.game
 g2p.server = p2s.server
+parser.g2p = g2p
 
 p2s.start()
 g2p.start()
@@ -148,8 +155,16 @@ while True:
 
         if cmd == "reload":
             reload(parser)
+            parser.g2p = g2p
+        elif cmd.startswith("intercept"):
+            cmd, *args = cmd.split()
+            if args:
+                api_server.intercept = args[0] == "on"
+            print("Intercept is", ("off", "on")[api_server.intercept])
         else:
-            parser.handle_command(cmd, g2p)
+            parser.handle_command(cmd)
 
     except Exception as e:
-        print(e)
+        print("Exception:", e)
+    except KeyboardInterrupt:
+        print("Enter 'exit' to quit")

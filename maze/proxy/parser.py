@@ -19,11 +19,10 @@ g2p = None
 last_cmd = None
 checkpoint = None
 last_checkpoint_time = 0
-abort_teleport = False
 lock_position = False
 locked_position = None
 lock_y = False
-
+add_time = 0
 
 def decrypt(data):
     result = bytearray(len(data) - 2)
@@ -146,6 +145,9 @@ def parse_position(data):
 
     if lock_y:
         return b"P" + orig[:20] + struct.pack("i", 40_000) + orig[24:]
+    
+    if add_time > 0:
+        return b"P" + orig[:8] + struct.pack("Q", round((time + add_time) * 10_000)) + orig[16:]
 
 
 
@@ -260,9 +262,6 @@ def server_teleport(data):
     x, y, z = map(lambda x: x / 10_000, struct.unpack("iii", data[1:]))
     print_server(f"Teleport at {instant} to {x},{y},{z}")
 
-    global abort_teleport
-    abort_teleport = True
-
 
 def server_unlock(data):
     unlocks = struct.unpack("H", data)[0]
@@ -297,14 +296,19 @@ def parse_server(data):
 
 
 def tp(*cords):
+    global add_time
+
     print("Teleporting to", *cords)
 
     cords = map(lambda x: round(x * 10_000), cords)
     cords = struct.pack("iii", *cords)
 
+    add_time += 1
+    time = pytime.time() - start_time + add_time
+
     if not lock_position:
         data = b"P" + last_secret
-        data += struct.pack("Q", round((pytime.time() - start_time) * 10_000))
+        data += struct.pack("Q", round(time * 10_000))
         data += cords
         data += b"\0" * 17
         g2p.send_to_server(encrypt(data))
@@ -330,29 +334,30 @@ CHECKPOINTS = [
     (153.9269, 0, 203.0084),
     (152.2758, 0, 184.3855),
     (155.0973, 0, 164.5933),
-    (175.9359, 0.0, 163.5304),
-    (179.7533, 0.0, 159.3532),
-    (177.1522, 0.0, 133.3842),
-    (162.7332, 0.0, 117.5862),
-    (147.1328, 0.0, 99.9839),
-    (122.7027, 0.0, 99.2823),
-    (116.0438, 0.0, 107.8459),
-    (116.0665, 0.0, 122.708),
-    (122.7653, 0.0, 125.3277),
-    (125.7652, 0.0, 134.8275),
-    (123.5945, 0.0, 137.3972),
+    (175.9359, 0, 163.5304),
+    (179.7533, 0, 159.3532),
+    (177.1522, 0, 133.3842),
+    (162.7332, 0, 117.5862),
+    (147.1328, 0, 99.9839),
+    (122.7027, 0, 99.2823),
+    (116.0438, 0, 107.8459),
+    (116.0665, 0, 122.708),
+    (122.7653, 0, 125.3277),
+    (125.7652, 0, 134.8275),
+    (123.5945, 0, 137.3972),
     (123.5945, 0, 147.3972),
     (113.6882, 0, 191.3666),
     (108.2361, 0, 198.4183),
     (108.2361, 0, 208.9183),
-    (94.5119, 0.0, 213.611),
-    (82.8364, 0.0, 213.5013),
-    (76.2122, 0.0, 209.9654),
+    (94.5119, 0, 213.611),
+    (82.8364, 0, 213.5013),
+    (76.2122, 0, 209.9654),
+    (61.5, 0, 208.5),
 ]
 
 
 def handle_command(cmd):
-    global last_cmd, block_movement, abort_teleport
+    global last_cmd, block_movement
 
     if cmd:
         last_cmd = cmd
@@ -362,7 +367,6 @@ def handle_command(cmd):
         return
 
     cmd, *args = cmd.split()
-    abort_teleport = False
 
     if cmd == "tp":
         x, y, z = map(float, args)
@@ -374,35 +378,22 @@ def handle_command(cmd):
     elif cmd == "pos":
         print(last_pos)
     elif cmd == "race":
-        todo = CHECKPOINTS
         last = last_pos[:3]
-
-        if dist(last, CHECKPOINTS[0]) > 9:
-            for i, cp in reversed(list(enumerate(CHECKPOINTS))):
-                if dist(last, cp) < 9:
-                    todo = list(reversed(CHECKPOINTS[: i + 1]))
-                    break
-            else:
-                print("Too far away from start")
-                return
-
         block_movement = True
-        pytime.sleep(2)
+        pytime.sleep(1)
 
-        for cp in todo:
-            if abort_teleport:
-                break
+        for cp in CHECKPOINTS:
             while dist(last, cp) > 10:
                 direction = norm(diff(cp, last))
                 last = add(last, scalar_mul(direction, 9.5))
                 tp(*last)
-                pytime.sleep(1)
             if dist(last, cp) > 1:
                 last = cp
                 tp(*cp)
-                pytime.sleep(1)
 
+        pytime.sleep(1)
         block_movement = False
+
     elif cmd == "checkpoint":
         global checkpoint
         if args[0] == "off":

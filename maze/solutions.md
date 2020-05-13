@@ -54,3 +54,10 @@ Flag: `CSCG{SOLVED_THE_MAZE...LONG_WAY_BACK!}`
 Continously y = 4 to server to avoid lava
 
 Flag: `CSCG{FLYHAX_TOO_CLOSE_TO_THE_SUN!}`
+
+
+## M4z3 Runn3r
+
+Flag: `CSCG{N3VER_TRUST_T1111ME}`
+
+When teleporting: increase time

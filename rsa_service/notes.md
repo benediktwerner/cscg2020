@@ -7,3 +7,16 @@ Choose `d`, `e` and primes `p`, `q` such that:
 and
 
 `d*e = 1 mod ((p-1) * (q-1))`
+
+
+## RSA_check_key()
+
+- https://www.openssl.org/docs/man1.1.0/man3/RSA_check_key.html
+- https://github.com/openssl/openssl/blob/master/crypto/rsa/rsa_chk.c
+
+- e != 1
+- e odd
+- p prime
+- q prime
+- p*q == n
+- d*e == 1 mod (p-1) * (q-1)

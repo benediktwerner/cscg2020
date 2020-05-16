@@ -3,7 +3,6 @@ Strange letters in description: `iyrnete`
 Sonic Visualiser Spectogram:
 
 Password: `Th3-R3D-P1ll?`
-Th3-BLU3-P1ll?
 
 Extract data using `steghide`:
 ```

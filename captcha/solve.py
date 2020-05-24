@@ -37,9 +37,9 @@ def merge_overlapping(rects):
     result = []
     a = rects[0]
     for b in rects[1:]:
-        overlapp = b[0] - a[0] - a[2]
+        overlap = b[0] - a[0] - a[2]
         combined_width = max(a[0] + a[2], b[0] + b[2]) - a[0]
-        if overlapp <= 0 and combined_width <= SIZE:
+        if overlap <= 0 and combined_width <= SIZE:
             a = (a[0], MIN_Y, combined_width, SIZE)
         else:
             result.append(a)
@@ -72,7 +72,7 @@ def find_chars(img):
     inverted = ~img
 
     chars = []
-    for i, rect in enumerate(rects):
+    for rect in rects:
         if rect[2] > 23:
             chars.append((False, center(img, rect)))
             continue

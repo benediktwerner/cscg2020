@@ -18,6 +18,7 @@ begin
         and (user_input[2] = 'S')
         and (user_input[3] = 'C')
         and (user_input[4] = 'G')
+        and (user_input[5] = '{')
         and (user_input[user_input_length] = '}') then
     begin
       for i := 1 to user_input_length do

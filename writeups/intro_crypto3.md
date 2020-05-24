@@ -1,5 +1,65 @@
-#!/usr/bin/env python3
+# Intro to Crypto 3
 
+For this challenge, we again get four files: A text file `intercepted-message.txt` and three RSA public keys for the German, Russian, and US government.
+
+The message file contains an encrypted message to each of the three governments.
+
+Looking at the challenge description it seems likely that the message sent to each government is the same but each time encrypted with a different key corresponding to the respective government.
+
+Looking at the [Twenty Years of Attacks on the RSA Cryptosystem](https://crypto.stanford.edu/~dabo/papers/RSA-survey.pdf) whitepaper
+linked in the description of `Intro to Crypto 1` we can find a section about `Hastad's Broadcast Attack` that seems to apply to our situation.
+
+Among other things, this attack allows one to recover the contents of an encrypted message from three or more ciphertexts
+of the same message, each encrypted using a different key with a public exponent of 3.
+
+More generally it allows an attacker to recover a message from `k` ciphertexts of the same message, each encrypted with a different key
+with public exponent `e <= k`.
+
+Using `openssl` we can easily see that all the given keys indeed have a public exponent of 3:
+
+```
+$ openssl rsa -pubin -in german_governemnt.pem -text -noout
+...
+Exponent: 3 (0x3)
+```
+
+Let's have a look at the details of the attack:
+
+We have three RSA keys with moduli `N_ger`, `N_rus` and `N_us` and since they all have public exponent `e = 3` we have these three ciphertexts:
+- `C_ger = M³ mod N_ger`
+- `C_rus = M³ mod N_rus`
+- `C_us = M³ mod N_us`
+
+`M` denotes the original message we want to recover.
+
+Using the chinese remainder theorem we can calculate `C = M³ mod N_ger * N_rus * N_us`.
+
+This can be implemented with the following Python code:
+
+```python
+N = N_us * N_ger * N_rus
+C = 0
+for c, n in ((C_us, N_us), (C_ger, N_ger), (C_rus, N_rus)):
+    m = N // n
+    r, s = xgcd(n, m)
+    C += c * s * m
+
+C %= N
+```
+
+Since `M` must be smaller than all the moduli for RSA to work it follows that `M³ < N_ger * N_rus * N_us`
+and therefore `C = M³`.
+
+We can now simply find out `M` by calculating the cube-root of `C`.
+
+Since the Python standard library doesn't contain a method for calculating integer cube-roots
+and calculations on floating-point numbers won't be precise enough we have to implement it ourselves.
+
+Luckily, code to calculate arbitrary integer roots in Python can easily be found on the internet.
+
+The complete Python code to decrypt the message looks like this:
+
+```python
 from Cryptodome.Util.number import inverse, long_to_bytes
 from Cryptodome.PublicKey import RSA
 
@@ -55,6 +115,9 @@ for c, n in ((C_us, N_us), (C_ger, N_ger), (C_rus, N_rus)):
 
 C %= N
 
-m = root(C, 3)
+M = root(C, 3)
 
-print(long_to_bytes(m).decode())
+print(long_to_bytes(M).decode())
+```
+
+Running it decrypts the message which contains some padding and the flag: `CSCG{ch1nes3_g0vernm3nt_h4s_n0_pr0blem_w1th_c0ron4}`.

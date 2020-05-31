@@ -49,3 +49,5 @@ Flag: CSCG{1s_th4t_wh4t_they_c4ll_on3way_transf0rmati0n?}
 
 Of course, adding a constant amount to each character is not a one-way transformation, which is also why this password check was so easy to reverse.
 A proper oneway transformation to hide the password would be a strong cryptographic hash function like PBKDF2, bcrypt, or scrypt.
+
+Next: [Intro to Reversing 3](intro_rev3.md)

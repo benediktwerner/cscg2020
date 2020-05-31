@@ -49,3 +49,5 @@ It clearly isn't a good idea to store passwords as plain text.
 They should instead be hashed with a strong cryptographic hash function like PBKDF2, bcrypt, or scrypt.
 When checking for a password the program can then hash the input with the same function and only compare the hashed values.
 This way it's pretty much impossible to find out the password, even when you have the hash of the password and the hash alone isn't useful when the password checking is done on a remote server.
+
+Next: [Intro to Reversing 2](intro_rev2.md)

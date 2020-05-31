@@ -17,3 +17,5 @@ kill us and the server thinks we are flying above the lava.
 
 We can then use the teleport functionality from `Maze - Tower` to teleport onto the
 isle and turn flying off again to get the flag: `CSCG{FLYHAX_TOO_CLOSE_TO_THE_SUN!}`
+
+Next: [Maze - Maze Runner](maze_runner.md)

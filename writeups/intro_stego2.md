@@ -55,3 +55,5 @@ print("".join(map(chr, vals)))
 ```
 
 And we indeed get the flag: `CSCG{a_Fl4g}`
+
+Next: [Intro to Stegano 3](intro_stego3.md)

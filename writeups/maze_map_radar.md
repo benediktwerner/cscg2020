@@ -73,3 +73,5 @@ done()
 ```
 
 And from the drawing we can then read the flag: `CSCG{RADAR_HACK_XYZ}`
+
+Next: [Maze - Tower](maze_tower.md)

@@ -97,3 +97,5 @@ This script takes the port and the emoji value as command-line arguments.
 The game helpfully tells us the port it connects to in the top right corner.
 
 After trying a few different emoji values we finally get the flag when sending the emoji number 13: `CSCG{Your_hack_got_reported_to_authorities!}`
+
+Next: [Maze - Map Radar](maze_map_radar.md)

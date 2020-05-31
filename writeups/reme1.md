@@ -147,3 +147,5 @@ In this case, a symmetric cipher clearly isn't the right tool for the job. Inste
 be hashed using a strong cryptographic hash function suitable for passwords like PBKDF2, bcrypt, or scrypt.
 To check the password the program can then hash the provided password with the same function and check if the results match.
 This way only the hashed password must be stored in the binary and the original password can not be reconstructed from that.
+
+Next: [Reme Part 2](reme2.md)

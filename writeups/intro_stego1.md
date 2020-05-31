@@ -21,3 +21,5 @@ CSCG{Sup3r_s3cr3t_d4t4}
 ```
 
 The image contained a hidden file `flag.txt` with the flag: `CSCG{Sup3r_s3cr3t_d4t4}`.
+
+Next: [Intro to Stegano 2](intro_stego2.md)

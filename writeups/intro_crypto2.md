@@ -59,3 +59,5 @@ print(long_to_bytes(m).decode())
 This will give us the flag: `CSCG{Ok,_next_time_I_choose_p_and_q_random...}`
 
 Choosing `p` and `q` at random really sounds like a good idea.
+
+Next: [Intro to Crypto 3](intro_crypto3.md)

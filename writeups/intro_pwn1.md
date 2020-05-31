@@ -157,3 +157,5 @@ CSCG{NOW_PRACTICE_MORE}
 Clearly, it's better to follow the `man`-pages advice and `Never use gets(). [...] Use fgets() instead.`
 And of course letting users control the first argument of `printf` is equally bad.
 Instead, `printf("%s", user_input)` should be used.
+
+Next: [Intro to Pwning 2](intro_pwn2.md)

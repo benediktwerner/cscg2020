@@ -41,3 +41,5 @@ This method should now be fast enough to complete the challenge and get the flag
 
 The proxy code attached already contains code to solve the `M4z3 Runn3r` challenge
 which circumvents the need to wait 1 second between teleports.
+
+Next: [Maze - M4z3 Runn3r](maze_m4z3_runn3r.md)

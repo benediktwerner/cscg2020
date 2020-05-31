@@ -86,3 +86,5 @@ Using a tool like [uTinyRipper](https://github.com/mafaca/UtinyRipper) we can ex
 Looking through the assets we can find a texture at `Assets/Texture2D/flag1.png` which also contains the flag:
 
 ![](follow_the_white_rabbit_flag1.png)
+
+Next: [Follow The White Rabbit Datamining](follow_the_white_rabbit_datamining.md)

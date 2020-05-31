@@ -72,3 +72,5 @@ Session    WindowStation Format                 Handle Object     Data
 ---------- ------------- ------------------ ---------- ---------- --------------------------------------------------
          0 WinSta0       CF_UNICODETEXT        0x500b5 0xe1d523d8 BorlandDelphiIsReallyCool
 ```
+
+Next: [win_eXPerience 2](win_eXPerience2.md)

@@ -76,3 +76,5 @@ print(bytes.fromhex(hex(m)[2:]).decode())
 ```
 
 This gives us the flag: `CSCG{factorizing_the_key=pr0f1t}`
+
+Next: [Intro to Crypto 2](intro_crypto2.md)

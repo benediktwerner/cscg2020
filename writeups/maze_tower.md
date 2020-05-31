@@ -35,3 +35,5 @@ This way we can ignore the teleport limit and freely explore the map on the clie
 
 This, of course, has no impact on the server so we can't use this to get the flag
 but it makes it much easier to explore the map and find the castle.
+
+Next: [Maze - The Floor Is Lava](maze_lava.md)

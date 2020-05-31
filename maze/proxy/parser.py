@@ -411,5 +411,8 @@ def handle_command(cmd):
         if args:
             lock_y = args[0] == "on"
         print("Flying is", ("off", "on")[lock_y])
+    elif cmd == "emoji":
+        g2p.send_to_server(encrypt(b"E" + last_secret + bytes([int(args[0])])))
+        print("Sent emoji", args[0])
     else:
         print("Unknown command:", cmd)

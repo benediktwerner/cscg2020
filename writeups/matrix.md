@@ -19,7 +19,7 @@ only happens a few times and doesn't look like a proper pattern.
 However looking at the file in `Sonic Visualiser` we can see something
 very interesting hidden in the spectogramm:
 
-!(The password is: Th3-R3D-P1ll?)[./pwd.png]
+![The password is: Th3-R3D-P1ll?](./matrix_pwd.png)
 
 The spectogram spells out `The password is: Th3-R3D-P1ll?`.
 

